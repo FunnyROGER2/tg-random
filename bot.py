@@ -7,7 +7,7 @@ import os
 import random
 from html import escape
 from pyrogram import Client, enums, filters
-from pyrogram.errors import MessageNotModified
+from pyrogram.errors import FloodWait, MessageNotModified
 from pyrogram.types import Message
 from dotenv import load_dotenv
 
@@ -70,18 +70,22 @@ async def handle_random(message: Message, *, exclude_sender: bool):
         "⏱️", "⏲️", "⏰", "🕐", "🕑", "🕒", "🕓", "🕔",
         "🎪", "🎭", "✨", "🌟", "⭐", "🎮", "🎨", "🎬",
     ]
-    # Интервалы: 100→20 мс (ускорение), затем 50→1000 мс (замедление)
-    fast_intervals = [100, 90, 80, 70, 60, 50, 45, 40, 35, 30, 25, 20]
-    slow_intervals = [30, 50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+    # Интервалы: 150→50 мс (ускорение), затем 100→1000 мс (замедление) — меньше нагрузка на API
+    fast_intervals = [150, 130, 110, 90, 80, 70, 60, 50]
+    slow_intervals = [80, 120, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
     prev_emoji = None
     for interval_ms in fast_intervals + slow_intervals:
         choices = [e for e in SELECTION_EMOJIS if e != prev_emoji]
         emoji = random.choice(choices) if choices else random.choice(SELECTION_EMOJIS)
         prev_emoji = emoji
-        try:
-            await status_msg.edit_text(emoji)
-        except MessageNotModified:
-            pass
+        while True:
+            try:
+                await status_msg.edit_text(emoji)
+                break
+            except MessageNotModified:
+                break
+            except FloodWait as e:
+                await asyncio.sleep(e.value)
         await asyncio.sleep(interval_ms / 1000)
 
     members = await get_eligible_members(
