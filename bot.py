@@ -64,15 +64,11 @@ async def handle_random(message: Message, *, exclude_sender: bool):
     status_msg = await message.reply_text("Выбираем...")
     await asyncio.sleep(1)
 
-    # Эмодзи: кости, мячи, рулетка, часы, боулинг и т.п.
-    SELECTION_EMOJIS = [
-        "🎲", "🎱", "🎳", "🎰", "🎯", "🔮", "🎴", "🃏",
-        "⏱️", "⏲️", "⏰", "🕐", "🕑", "🕒", "🕓", "🕔",
-        "🎪", "🎭", "✨", "🌟", "⭐", "🎮", "🎨", "🎬",
-    ]
-    # Интервалы: 150→50 мс (ускорение), затем 100→1000 мс (замедление) — меньше нагрузка на API
-    fast_intervals = [150, 130, 110, 90, 80, 70, 60, 50]
-    slow_intervals = [80, 120, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+    # Эмодзи без анимации в Telegram (кости, рулетка, часы — анимированные, исключены)
+    SELECTION_EMOJIS = ["🔮", "🎴", "🃏", "🎪", "🎭", "🌟", "⭐", "🎮", "🎨", "🎬"]
+    # Интервалы: ускорение, затем замедление. Смен вдвое меньше (10 вместо ~20).
+    fast_intervals = [150, 110, 80, 60, 50]
+    slow_intervals = [100, 200, 400, 600, 1000]
     prev_emoji = None
     for interval_ms in fast_intervals + slow_intervals:
         choices = [e for e in SELECTION_EMOJIS if e != prev_emoji]
