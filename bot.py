@@ -5,6 +5,7 @@ Telegram-бот для случайного выбора пользовател�
 import asyncio
 import os
 import random
+from html import escape
 from pyrogram import Client, filters
 from pyrogram.types import Message
 from dotenv import load_dotenv
@@ -79,8 +80,8 @@ async def handle_random(message: Message, *, exclude_sender: bool):
 
     chosen = random.choice(members)
     name = chosen.user.first_name or "Пользователь"
-    mention = f"[{name}](tg://user?id={chosen.user.id})"
-    await status_msg.edit_text(f"Ты доброволец! {mention}", parse_mode="Markdown")
+    mention = f'<a href="tg://user?id={chosen.user.id}">{escape(name)}</a>'
+    await status_msg.edit_text(f"Ты доброволец! {mention}", parse_mode="HTML")
 
 
 def main():
