@@ -60,3 +60,32 @@ sudo systemctl start tg-random
 ```
 
 Без systemd бот запускается через `nohup` при каждом деплое и перезапускается при следующем push.
+
+### Если деплой падает с ошибкой 143 (SIGTERM)
+
+SSH-сессия может обрываться до завершения. Рекомендуется настроить systemd — тогда бот будет управляться сервисом, а не nohup.
+
+**На VPS:**
+
+1. Отредактировать `tg-random.service` (подставить свой пользователь и путь):
+   ```bash
+   sudo nano /opt/random-bot/tg-random.service
+   # User=root (или ваш SSH_USER)
+   # WorkingDirectory=/opt/random-bot
+   # EnvironmentFile=/opt/random-bot/.env
+   # ExecStart=/opt/random-bot/.venv/bin/python bot.py
+   ```
+
+2. Установить сервис:
+   ```bash
+   sudo cp /opt/random-bot/tg-random.service /etc/systemd/system/
+   sudo systemctl daemon-reload
+   sudo systemctl enable tg-random
+   sudo systemctl start tg-random
+   ```
+
+3. Добавить в workflow (шаг Setup and restart) вместо nohup:
+   ```yaml
+   sudo systemctl restart tg-random
+   ```
+   Либо настроить passwordless sudo для `systemctl restart tg-random` и изменить скрипт деплоя.

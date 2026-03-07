@@ -8,6 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    timeout-minutes: 20
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -53,4 +54,6 @@ jobs:
             printf 'API_ID=%s\nAPI_HASH=%s\nBOT_TOKEN=%s\n' "$API_ID" "$API_HASH" "$BOT_TOKEN" > .env
             (pkill -f "python.*bot.py" 2>/dev/null || true)
             nohup .venv/bin/python bot.py > bot.log 2>&1 &
+            disown
+            sleep 5
             echo "Bot started"
