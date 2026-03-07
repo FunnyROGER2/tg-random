@@ -66,7 +66,7 @@ async def handle_random(message: Message, *, exclude_sender: bool):
 
     # Обратный отсчёт 9→0, без рандома
     COUNTDOWN_EMOJIS = ["3️⃣", "2️⃣", "1️⃣", "0️⃣"]
-    intervals = [1000, 2000, 3000, 4000]
+    intervals = [500, 1000, 1500, 2000]
     for emoji, interval_ms in zip(COUNTDOWN_EMOJIS, intervals):
         while True:
             try:
