@@ -65,8 +65,8 @@ async def handle_random(message: Message, *, exclude_sender: bool):
     await asyncio.sleep(1)
 
     # Обратный отсчёт 9→0, без рандома
-    COUNTDOWN_EMOJIS = ["9️⃣", "8️⃣", "7️⃣", "6️⃣", "5️⃣", "4️⃣", "3️⃣", "2️⃣", "1️⃣", "0️⃣"]
-    intervals = [500, 400, 300, 200, 150, 200, 400, 600, 800, 1000]
+    COUNTDOWN_EMOJIS = ["3️⃣", "2️⃣", "1️⃣", "0️⃣"]
+    intervals = [1000, 2000, 3000, 4000]
     for emoji, interval_ms in zip(COUNTDOWN_EMOJIS, intervals):
         while True:
             try:
