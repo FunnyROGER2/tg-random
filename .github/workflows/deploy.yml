@@ -52,5 +52,6 @@ jobs:
             . .venv/bin/activate
             pip install -r requirements.txt -q
             printf 'API_ID=%s\nAPI_HASH=%s\nBOT_TOKEN=%s\n' "$API_ID" "$API_HASH" "$BOT_TOKEN" > .env
+            sudo systemctl daemon-reload
             sudo systemctl restart tg-random
             echo "Bot restarted via systemd"
