@@ -1,0 +1,15 @@
+[Unit]
+Description=Telegram Random User Bot
+After=network.target
+
+[Service]
+Type=simple
+User=YOUR_USER
+WorkingDirectory=/path/to/tg-random
+EnvironmentFile=/path/to/tg-random/.env
+ExecStart=/path/to/tg-random/.venv/bin/python bot.py
+Restart=always
+RestartSec=10
+
+[Install]
+WantedBy=multi-user.target
