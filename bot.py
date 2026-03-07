@@ -63,8 +63,18 @@ async def handle_random(message: Message, *, exclude_sender: bool):
     status_msg = await message.reply_text("Выбираем...")
     await asyncio.sleep(1)
 
-    await status_msg.edit_text("🎲")
-    await asyncio.sleep(1)
+    # Эмодзи: кости, мячи, рулетка, часы, боулинг и т.п.
+    SELECTION_EMOJIS = [
+        "🎲", "🎱", "🎳", "🎰", "🎯", "🔮", "🎴", "🃏",
+        "⏱️", "⏲️", "⏰", "🕐", "🕑", "🕒", "🕓", "🕔",
+        "🎪", "🎭", "✨", "🌟", "⭐", "🎮", "🎨", "🎬",
+    ]
+    # Интервалы: 100→20 мс (ускорение), затем 50→1000 мс (замедление)
+    fast_intervals = [100, 90, 80, 70, 60, 50, 45, 40, 35, 30, 25, 20]
+    slow_intervals = [30, 50, 100, 150, 200, 300, 400, 500, 600, 700, 800, 900, 1000]
+    for interval_ms in fast_intervals + slow_intervals:
+        await status_msg.edit_text(random.choice(SELECTION_EMOJIS))
+        await asyncio.sleep(interval_ms / 1000)
 
     members = await get_eligible_members(
         chat_id,
