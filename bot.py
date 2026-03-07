@@ -1,6 +1,6 @@
 """
 Telegram-бот для случайного выбора пользователя из группы.
-Команды: /random, /random-others (исключая отправителя).
+Команды: /random, /randomothers (исключая отправителя).
 """
 import asyncio
 import os
@@ -31,7 +31,7 @@ def is_real_user(member) -> bool:
 async def get_eligible_members(chat_id: int, exclude_user_id: int | None = None) -> list:
     """
     Собирает список реальных пользователей группы.
-    exclude_user_id — ID пользователя, которого исключить (для /random-others).
+    exclude_user_id — ID пользователя, которого исключить (для /randomothers).
     """
     members = []
     async for member in app.get_chat_members(chat_id):
@@ -49,7 +49,7 @@ async def cmd_random(client: Client, message: Message):
     await handle_random(message, exclude_sender=False)
 
 
-@app.on_message(filters.command("random-others") & filters.group)
+@app.on_message(filters.command("randomothers") & filters.group)
 async def cmd_random_others(client: Client, message: Message):
     """Выбирает случайного пользователя из группы, исключая отправителя."""
     await handle_random(message, exclude_sender=True)
