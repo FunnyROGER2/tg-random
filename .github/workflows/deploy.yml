@@ -12,16 +12,43 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Deploy via SSH
+      - name: Prepare env
+        run: |
+          echo "API_ID=${{ secrets.API_ID }}" >> $GITHUB_ENV
+          echo "API_HASH=${{ secrets.API_HASH }}" >> $GITHUB_ENV
+          echo "BOT_TOKEN=${{ secrets.BOT_TOKEN }}" >> $GITHUB_ENV
+
+      - name: Ensure remote directory
         uses: appleboy/ssh-action@v1.0.3
         with:
           host: ${{ secrets.SSH_HOST }}
           username: ${{ secrets.SSH_USER }}
           key: ${{ secrets.SSH_PRIVATE_KEY }}
+          script: mkdir -p ${{ secrets.DEPLOY_PATH }}
+
+      - name: Copy files
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          source: "bot.py,requirements.txt,tg-random.service"
+          target: ${{ secrets.DEPLOY_PATH }}
+
+      - name: Setup and restart
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: ${{ secrets.SSH_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          envs: API_ID,API_HASH,BOT_TOKEN
           script: |
             set -e
             cd ${{ secrets.DEPLOY_PATH }}
-            git pull origin main || git pull origin master
-            source .venv/bin/activate 2>/dev/null || true
+            python3 -m venv .venv 2>/dev/null || true
+            . .venv/bin/activate
             pip install -r requirements.txt -q
-            sudo systemctl restart tg-random || (pkill -f "python.*bot.py" 2>/dev/null; nohup python bot.py > bot.log 2>&1 &)
+            printf 'API_ID=%s\nAPI_HASH=%s\nBOT_TOKEN=%s\n' "$API_ID" "$API_HASH" "$BOT_TOKEN" > .env
+            (pkill -f "python.*bot.py" 2>/dev/null || true)
+            nohup .venv/bin/python bot.py > bot.log 2>&1 &
+            echo "Bot started"
