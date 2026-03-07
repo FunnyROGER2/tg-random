@@ -5,9 +5,11 @@ After=network.target
 [Service]
 Type=simple
 User=YOUR_USER
-WorkingDirectory=/path/to/tg-random
-EnvironmentFile=/path/to/tg-random/.env
-ExecStart=/path/to/tg-random/.venv/bin/python bot.py
+WorkingDirectory=/opt/random-bot
+EnvironmentFile=/opt/random-bot/.env
+ExecStart=/opt/random-bot/.venv/bin/python bot.py
+StandardOutput=append:/opt/random-bot/bot.log
+StandardError=append:/opt/random-bot/bot.log
 Restart=always
 RestartSec=10
 
