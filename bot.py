@@ -48,16 +48,18 @@ async def get_eligible_members(chat_id: int, exclude_user_id: int | None = None)
 @app.on_message(filters.command("random") & filters.group)
 async def cmd_random(client: Client, message: Message):
     """Выбирает случайного пользователя из группы."""
-    await handle_random(message, exclude_sender=False)
+    essence = " ".join(message.command[1:]).strip() if message.command and len(message.command) > 1 else "доброволец"
+    await handle_random(message, exclude_sender=False, essence=essence)
 
 
 @app.on_message(filters.command("randomothers") & filters.group)
 async def cmd_random_others(client: Client, message: Message):
     """Выбирает случайного пользователя из группы, исключая отправителя."""
-    await handle_random(message, exclude_sender=True)
+    essence = " ".join(message.command[1:]).strip() if message.command and len(message.command) > 1 else "доброволец"
+    await handle_random(message, exclude_sender=True, essence=essence)
 
 
-async def handle_random(message: Message, *, exclude_sender: bool):
+async def handle_random(message: Message, *, exclude_sender: bool, essence: str = "доброволец"):
     chat_id = message.chat.id
     sender_id = message.from_user.id if message.from_user else None
 
@@ -65,8 +67,8 @@ async def handle_random(message: Message, *, exclude_sender: bool):
     await asyncio.sleep(1)
 
     # Обратный отсчёт 9→0, без рандома
-    COUNTDOWN_EMOJIS = ["3️⃣", "2️⃣", "1️⃣", "0️⃣"]
-    intervals = [500, 1000, 1500, 2000]
+    COUNTDOWN_EMOJIS = ["3️⃣", "2️⃣", "1️⃣"]
+    intervals = [500, 1000, 1500, 3000]
     for emoji, interval_ms in zip(COUNTDOWN_EMOJIS, intervals):
         while True:
             try:
@@ -93,7 +95,7 @@ async def handle_random(message: Message, *, exclude_sender: bool):
     chosen = random.choice(members)
     name = chosen.user.first_name or "Пользователь"
     mention = f'<a href="tg://user?id={chosen.user.id}">{escape(name)}</a>'
-    await status_msg.edit_text(f"Ты доброволец! {mention}", parse_mode=enums.ParseMode.HTML)
+    await status_msg.edit_text(f"Ты {escape(essence)}, {mention}!", parse_mode=enums.ParseMode.HTML)
 
 
 def main():
